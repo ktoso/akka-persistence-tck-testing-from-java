@@ -2,9 +2,11 @@ package com.typesafe.akka.persistence.testing;
 
 import akka.persistence.japi.snapshot.JavaSnapshotStoreSpec;
 import com.typesafe.config.ConfigFactory;
-import org.iq80.leveldb.util.FileUtils;
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +23,18 @@ public class MySnapshotStoreTest extends JavaSnapshotStoreSpec {
     storageLocations.add(new File(system().settings().config().getString("akka.persistence.snapshot-store.local.dir")));
   }
 
+  @Test
+  public void noop() {}
+
   public void beforeAll() {
     for (File storageLocation : storageLocations) {
-      FileUtils.deleteRecursively(storageLocation);
+      try {
+        FileUtils.deleteDirectory(storageLocation);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+
     super.beforeAll();
   }
 
@@ -32,7 +42,11 @@ public class MySnapshotStoreTest extends JavaSnapshotStoreSpec {
   public void afterAll() {
     super.afterAll();
     for (File storageLocation : storageLocations) {
-      FileUtils.deleteRecursively(storageLocation);
+      try {
+        FileUtils.deleteDirectory(storageLocation);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
